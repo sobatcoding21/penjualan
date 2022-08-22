@@ -15,14 +15,6 @@ class _OrderScreenState extends State<OrderScreen> {
   int totalHarga = 0;
   List<ListOrder> orderList = [];
 
-  void hitungTotal() {
-    for (var list in orderList) {
-      setState(() {
-        totalHarga = totalHarga + int.parse(list.total.toString());
-      });
-    }
-  }
-
   Future<void> getListOrder() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     var listOrder = pref.getString("orderList");
@@ -51,15 +43,15 @@ class _OrderScreenState extends State<OrderScreen> {
   }
 
   Future<bool> toHomeScreen() async {
-  await Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const HomeScreen(),
-    ),
-  );
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HomeScreen(),
+      ),
+    );
 
-  return true;
-}
+    return true;
+  }
 
   @override
   void initState() {
@@ -116,9 +108,7 @@ class _OrderScreenState extends State<OrderScreen> {
   Widget build(BuildContext context) {
     //Size screenSize = MediaQuery.of(context).size;
     return WillPopScope(
-      onWillPop: () => 
-        toHomeScreen()
-      ,
+      onWillPop: () => toHomeScreen(),
       child: Scaffold(
           appBar: AppBar(
               title: const Text('Detail Order'), actions: const <Widget>[]),
@@ -154,7 +144,8 @@ class _OrderScreenState extends State<OrderScreen> {
                                 ],
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     "Rp. $totalHarga",
