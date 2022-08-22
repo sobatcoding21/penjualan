@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tokokue/screens/home_screen.dart';
 
 import '../models/listorder.dart';
 
@@ -48,6 +49,17 @@ class _OrderScreenState extends State<OrderScreen> {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.setString("orderList", ListOrder.encode(orderList));
   }
+
+  Future<bool> toHomeScreen() async {
+  await Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const HomeScreen(),
+    ),
+  );
+
+  return true;
+}
 
   @override
   void initState() {
@@ -103,59 +115,64 @@ class _OrderScreenState extends State<OrderScreen> {
   @override
   Widget build(BuildContext context) {
     //Size screenSize = MediaQuery.of(context).size;
-    return Scaffold(
-        appBar: AppBar(
-            title: const Text('Detail Order'), actions: const <Widget>[]),
-        body: Container(
-          margin: const EdgeInsets.all(0),
-          child: orderList.isNotEmpty
-              ? Stack(
-                  children: [
-                    ListView.builder(
-                        itemCount: orderList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return buildListOrder(index);
-                        }),
-                    Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Container(
-                            height: 100, //screenSize.height / 4,
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(15),
-                            margin: const EdgeInsets.only(
-                                left: 10, right: 10, bottom: 20),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.5),
-                                  spreadRadius: 5,
-                                  blurRadius: 7,
-                                  offset: const Offset(
-                                      0, 3), // changes position of shadow
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Rp. $totalHarga",
-                                  style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                ElevatedButton(
-                                    onPressed: () {
-                                      null;
-                                    },
-                                    child: const Text("SIMPAN"))
-                              ],
-                            )))
-                  ],
-                )
-              : const Center(child: Text("Data order masih kosong")),
-        ));
+    return WillPopScope(
+      onWillPop: () => 
+        toHomeScreen()
+      ,
+      child: Scaffold(
+          appBar: AppBar(
+              title: const Text('Detail Order'), actions: const <Widget>[]),
+          body: Container(
+            margin: const EdgeInsets.all(0),
+            child: orderList.isNotEmpty
+                ? Stack(
+                    children: [
+                      ListView.builder(
+                          itemCount: orderList.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return buildListOrder(index);
+                          }),
+                      Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Container(
+                              height: 100, //screenSize.height / 4,
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(15),
+                              margin: const EdgeInsets.only(
+                                  left: 10, right: 10, bottom: 20),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    spreadRadius: 5,
+                                    blurRadius: 7,
+                                    offset: const Offset(
+                                        0, 3), // changes position of shadow
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Rp. $totalHarga",
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        null;
+                                      },
+                                      child: const Text("SIMPAN"))
+                                ],
+                              )))
+                    ],
+                  )
+                : const Center(child: Text("Data order masih kosong")),
+          )),
+    );
   }
 }
