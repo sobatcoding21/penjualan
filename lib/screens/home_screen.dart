@@ -18,45 +18,63 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final String apiUrl = "https://farizan.my.id/api/produk";
   List<ListOrder> orderList = [];
+  int totalItem = 0;
 
   void klikBeli(item) {
+    bool containsItem = orderList.any((element) => element.id == item['id']);
     setState(() {
-      orderList.add(ListOrder(
-          id: item['id'],
-          nama: item['nama'],
-          foto: item['foto'],
-          qty: 1,
-          harga: int.parse(item['harga']),
-          total: int.parse(item['harga'])));
+      totalItem++;
+      //ceck exist
+      if (containsItem) {
+        //update qty
+        final index =
+            orderList.indexWhere((element) => element.id == item['id']);
+            
+        if (index != -1) {
+          orderList[index].qty = orderList[index].qty! + 1;
+          final int totalHarga = orderList[index].qty! * orderList[index].harga!;
+          orderList[index].total = totalHarga;
+        }
+      } else {
+        orderList.add(ListOrder(
+            id: item['id'],
+            nama: item['nama'],
+            foto: item['foto'],
+            qty: 1,
+            harga: int.parse(item['harga']),
+            total: int.parse(item['harga'])));
+      }
 
-      addToChart(orderList);
+      addToChart(orderList, totalItem);
     });
   }
-
 
   Future<void> getListOrder() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     var listOrder = pref.getString("orderList");
-    var orderListMap = ListOrder.decode(listOrder.toString());
+    var totQty = pref.getInt("qty");
 
-    for(var order in orderListMap) {
-      setState(() {
-        orderList.add(ListOrder(
-          id: order.id,
-          nama: order.nama,
-          foto: order.foto,
-          qty: order.qty,
-          harga: int.parse(order.harga.toString()),
-          total: int.parse(order.total.toString())));
-      });
+    if (listOrder != null) {
+      var orderListMap = ListOrder.decode(listOrder.toString());
+      for (var order in orderListMap) {
+        setState(() {
+          totalItem = totQty!;
+          orderList.add(ListOrder(
+              id: order.id,
+              nama: order.nama,
+              foto: order.foto,
+              qty: order.qty,
+              harga: int.parse(order.harga.toString()),
+              total: int.parse(order.total.toString())));
+        });
+      }
     }
-
-    debugPrint(listOrder.toString());
   }
 
-  void addToChart(item) async {
+  void addToChart(item, qty) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.setString("orderList", ListOrder.encode(item));
+    await preferences.setInt("qty", qty);
   }
 
   Widget shoppingCartBadge() {
@@ -65,13 +83,13 @@ class _HomeScreenState extends State<HomeScreen> {
       animationDuration: const Duration(milliseconds: 300),
       animationType: BadgeAnimationType.slide,
       badgeContent: Text(
-        orderList.length.toString(),
+        totalItem.toString(),
         style: const TextStyle(color: Colors.white),
       ),
       child: IconButton(
           icon: const Icon(Icons.shopping_cart),
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (BuildContext context) => const OrderScreen(),

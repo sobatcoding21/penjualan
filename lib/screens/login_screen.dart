@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tokokue/Services/auth_services.dart';
 import 'package:tokokue/Services/globals.dart';
 import 'package:tokokue/rounded_button.dart';
@@ -23,18 +24,32 @@ class LoginScreenState extends State<LoginScreen> {
     if (_email.isNotEmpty && _password.isNotEmpty) {
       http.Response response = await AuthServices.login(_email, _password);
       Map responseMap = jsonDecode(response.body);
+
       if (response.statusCode == 200) {
-        Navigator.push(
+        //save session
+        //debugPrint(responseMap['id'].toString());
+        saveSession(responseMap['id'].toString());
+        /*Navigator.push(
             context,
             MaterialPageRoute(
               builder: (BuildContext context) => const HomeScreen(),
-            ));
+            ));*/
       } else {
         errorSnackBar(context, responseMap.values.first);
       }
     } else {
       errorSnackBar(context, 'enter all required fields');
     }
+  }
+
+  saveSession(id) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    await pref.setString("id_user", id);
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => const HomeScreen(),
+        ));
   }
 
   @override
