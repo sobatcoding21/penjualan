@@ -43,13 +43,18 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   saveSession(id) async {
+
     SharedPreferences pref = await SharedPreferences.getInstance();
     await pref.setString("id_user", id);
+
     Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+
+    /*Navigator.push(
         context,
         MaterialPageRoute(
           builder: (BuildContext context) => const HomeScreen(),
-        ));
+        ));*/
   }
 
   @override

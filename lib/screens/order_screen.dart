@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:tokokue/screens/home_screen.dart';
 
+//import '../models/detailpost.dart';
 import '../models/listorder.dart';
 
 class OrderScreen extends StatefulWidget {
@@ -19,15 +20,17 @@ class _OrderScreenState extends State<OrderScreen> {
   int totalHarga = 0;
   int totalQty = 0;
   String textCatatan = '';
+  String textAlamat = '';
   String? idUser;
   List<ListOrder> orderList = [];
   TextEditingController? catatan;
+  TextEditingController? alamat;
 
   Future<void> getListOrder() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     var listOrder = pref.getString("orderList");
     var totQty = pref.getInt("qty");
-    var id = pref.getString("id");
+    var id = pref.getString("id_user");
 
     setState(() {
       idUser = id;
@@ -44,9 +47,9 @@ class _OrderScreenState extends State<OrderScreen> {
               foto: order.foto,
               qty: order.qty,
               harga: int.parse(order.harga.toString()),
-              total: int.parse(order.total.toString())));
+              total_harga: int.parse(order.total_harga.toString())));
 
-          totalHarga = totalHarga + int.parse(order.total.toString());
+          totalHarga = totalHarga + int.parse(order.total_harga.toString());
         });
       }
     }
@@ -79,18 +82,23 @@ class _OrderScreenState extends State<OrderScreen> {
     });
 
     try {
-      final response = await http.post(
-          Uri.parse("http://55.55.55.21/restapi_ci3/order/save"),
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode({
+
+      var postData = jsonEncode({
             "user_id": idUser,
             "total_qty": totalQty,
             "total_harga": totalHarga,
             "catatan": textCatatan,
-            "order": jsonEncode(ListOrder.encode(orderList))
-          }));
+            "alamat_antar": textAlamat,
+            "order": ListOrder.encode(orderList)
+          });
+
+      debugPrint(postData.toString());
+      final response = await http.post(
+          Uri.parse("https://farizan.my.id/api/order/store"),
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: postData);
 
       if (!mounted) return;
       final data = jsonDecode(response.body);
@@ -194,7 +202,7 @@ class _OrderScreenState extends State<OrderScreen> {
                           totalQty--;
 
                           item.qty = item.qty! - 1;
-                          item.total = item.qty! * item.harga!;
+                          item.total_harga = item.qty! * item.harga!;
                           if (item.qty == 0) {
                             totalHarga =
                                 totalHarga - int.parse(item.harga.toString());
@@ -203,7 +211,7 @@ class _OrderScreenState extends State<OrderScreen> {
                           }
                           //update total
                           totalHarga =
-                              totalHarga - int.parse(item.total.toString());
+                              totalHarga - int.parse(item.total_harga.toString());
                           updateListOrder(orderList, totalQty);
                         });
                       },
@@ -215,7 +223,7 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    //Size screenSize = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery.of(context).size;
     return WillPopScope(
       onWillPop: () => toHomeScreen(),
       child: Scaffold(
@@ -234,7 +242,7 @@ class _OrderScreenState extends State<OrderScreen> {
                       Align(
                           alignment: Alignment.bottomCenter,
                           child: Container(
-                              height: 180, //screenSize.height / 4,
+                              height: screenSize.height / 3.5,
                               width: double.infinity,
                               padding: const EdgeInsets.all(15),
                               margin: const EdgeInsets.only(
@@ -275,6 +283,17 @@ class _OrderScreenState extends State<OrderScreen> {
                                     ),
                                     onChanged: (text) {
                                       textCatatan = text;
+                                    },
+                                  ),
+                                  const Text("Alamat antar:"),
+                                  TextField(
+                                    controller: catatan,
+                                    decoration: const InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      labelText: '...',
+                                    ),
+                                    onChanged: (text) {
+                                      textAlamat = text;
                                     },
                                   ),
                                   Row(

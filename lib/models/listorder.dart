@@ -7,7 +7,7 @@ class ListOrder {
   String? foto;
   int? qty;
   int? harga;
-  int? total;
+  int? total_harga;
 
   ListOrder(
       {this.id,
@@ -16,7 +16,7 @@ class ListOrder {
       this.foto,
       this.qty,
       this.harga,
-      this.total});
+      this.total_harga});
   ListOrder.fromJson(Map json)
       : id = json['id'],
         invoice = json['invoice'],
@@ -24,7 +24,7 @@ class ListOrder {
         foto = json['foto'],
         qty = json['qty'],
         harga = json['harga'],
-        total = json['total'];
+        total_harga = json['total_harga'];
 
   static Map<String, dynamic> toMap(ListOrder orderlist) => {
         'id': orderlist.id,
@@ -33,7 +33,7 @@ class ListOrder {
         'foto': orderlist.foto,
         'qty': orderlist.qty,
         'harga': orderlist.harga,
-        'total': orderlist.total,
+        'total_harga': orderlist.total_harga
       };
 
   static String encode(List<ListOrder> orderlist) => json.encode(

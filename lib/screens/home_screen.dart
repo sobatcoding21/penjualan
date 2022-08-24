@@ -32,8 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
             
         if (index != -1) {
           orderList[index].qty = orderList[index].qty! + 1;
-          final int totalHarga = orderList[index].qty! * orderList[index].harga!;
-          orderList[index].total = totalHarga;
+          final int totalHarga = orderList[index].qty! * orderList[index].total_harga!;
+          orderList[index].total_harga = totalHarga;
         }
       } else {
         orderList.add(ListOrder(
@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
             foto: item['foto'],
             qty: 1,
             harga: int.parse(item['harga']),
-            total: int.parse(item['harga'])));
+            total_harga: int.parse(item['harga'])));
       }
 
       addToChart(orderList, totalItem);
@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> getListOrder() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
+    SharedPreferences pref = await SharedPreferences.getInstance();    
     var listOrder = pref.getString("orderList");
     var totQty = pref.getInt("qty");
 
@@ -65,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
               foto: order.foto,
               qty: order.qty,
               harga: int.parse(order.harga.toString()),
-              total: int.parse(order.total.toString())));
+              total_harga: int.parse(order.total_harga.toString())));
         });
       }
     }
